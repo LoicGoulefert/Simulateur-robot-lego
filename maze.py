@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-
-import pickle
 import numpy as np
+import curses
+import time
+from curses import wrapper
 
+stdscr = curses.initscr()
 
 def build_cells_from_file(path):
     """Return a tuple containing width, height, matrix of cells"""
@@ -47,6 +49,8 @@ class Cell:
         self.walls['RIGHT'] = walls[1] == '0'
         self.walls['DOWN'] = walls[2] == '0'
         self.walls['LEFT'] = walls[3] == '0'
+        #content is used to store a robot, an objective or the exit
+        self.content = ' '
         
 
 def test_cell(walls):
@@ -57,40 +61,62 @@ def test_cell(walls):
 
 class Maze:
 
-	def __init__(self, configfile_path):
-		self.width, self.height, self.maze = build_cells_from_file(configfile_path)
+    def __init__(self, configfile_path):
+        self.width, self.height, self.maze = build_cells_from_file(configfile_path)	
 
 
-	def __str__(self):
-		"""Return maze table in ASCII"""
+    def __str__(self):
+        """Return maze table in ASCII"""
+        result = '.' + self.width * '___.'
+        result += '\n'
 
-		result = '.' + self.width * '_.'
-		result += '\n'
+        for i in range(self.height):
+            result += '|'
 
-		for i in range(self.height):
-			result += '|'
-
-			for j in range(self.width):
-				if i==self.height-1 or self.maze[i][j].walls['DOWN']:
-					result += '_'
-				else:
-					result += ' '
-				if j==self.width-1 or self.maze[i][j].walls['RIGHT']:
-					result += '|'
-				else:
-					result += '.'
-
-			result += '\n'
-
-		return result
+            for j in range(self.width):
+                if i==self.height-1 or self.maze[i][j].walls['DOWN']:
+                    content = self.maze[i][j].content
+                    if content == ' ':
+                        result += '___'
+                    else:
+                        result += '_{}_'.format(content)
+                else:
+                    result += ' {} '.format(self.maze[i][j].content)
+                if j==self.width-1 or self.maze[i][j].walls['RIGHT']:
+                    result += '|'
+                else:
+                    result += '.'
+            result += '\n'
+        return result      
+        
 
 
 #***************************************************#
 
+def main(stdscr):
+    m = Maze('./mazes/m1.txt')
+    m.maze[0][0].content = 'A'
+    m.maze[4][4].content = 'X'
+    m.maze[2][1].content = 'a'
+    
+    #Testing curses    
+    #curses.noecho()
+    #curses.cbreak()
+    #stdscr.keypad(True)
+
+    s = str(m)
+    stdscr.addstr(s)
+    stdscr.refresh()
+    time.sleep(2)
+
+    
+    #curses.nocbreak()
+    #stdscr.keypad(False)
+    #curses.echo()
+    #curses.endwin()
+
 if __name__ == "__main__":
-    maze = Maze('./mazes/m1.txt')
-    print(maze)
+    wrapper(main)
+
     
     
-
-

@@ -46,7 +46,6 @@ class Maze:
 		self.width, self.height, self.cell_tab = build_cells_from_file(configfile_path) 
 
 
-	# TODO : Agrandir les cases, on part sur du 3x3 pour que ça soit plus clair
 	def __str__(self):
 		"""Return maze table in ASCII"""
 		result = '.' + self.width * '___.'

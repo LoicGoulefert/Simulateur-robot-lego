@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+#! /usr/bin/python3
 
 """ This module represent a cell of the maze.
 A cell can have up to 4 walls, it can be occupied by a robot, 
 an objective or the exit.
 More details can be added, like a background color, it's state, 
-i.e "visited" """
+i.e "visited"... """
 
 class Cell:
     def __init__(self, walls):
@@ -22,9 +22,4 @@ class Cell:
         # Content is used to store a robot, an objective or the exit
         self.content = ' '
         # We can add self.color
-        
-
-def test_cell(walls):
-    cell = Cell(walls)
-    print(cell.walls)
 

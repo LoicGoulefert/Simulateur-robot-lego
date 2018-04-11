@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
-import numpy as np
-import curses
-import time
-from curses import wrapper
 
-stdscr = curses.initscr()
+""" This module represent the maze that is being simulated. """
+
+#Libs
+import numpy as np
+
+#Others
+from cell import Cell
+
 
 def build_cells_from_file(path):
-    """Return a tuple containing width, height, matrix of cells"""
+    """Build a matrix of cells from the config file.
+    Return a tuple containing width, height, matrix of cells"""
     
     f = open(path, 'r')
     
@@ -32,30 +36,7 @@ def build_cells_from_file(path):
     f.close()
     
     return width, height, cell_tab
-    
 
-#***************************************************#
-
-class Cell:
-    def __init__(self, walls):
-        """Init a cell with the string walls.
-        String format : 0010 , meaning: 
-            UP -> wall
-            RIGHT -> wall
-            DOWN -> no wall
-            LEFT -> wall"""
-        self.walls = {}
-        self.walls['UP'] = walls[0] == '0'
-        self.walls['RIGHT'] = walls[1] == '0'
-        self.walls['DOWN'] = walls[2] == '0'
-        self.walls['LEFT'] = walls[3] == '0'
-        #content is used to store a robot, an objective or the exit
-        self.content = ' '
-        
-
-def test_cell(walls):
-    cell = Cell(walls)
-    print(cell.walls)
 
 #***************************************************#
 
@@ -65,6 +46,7 @@ class Maze:
         self.width, self.height, self.maze = build_cells_from_file(configfile_path)	
 
 
+    # TODO : Agrandir les cases, on part sur du 3x3 pour que ça soit plus clair
     def __str__(self):
         """Return maze table in ASCII"""
         result = '.' + self.width * '___.'
@@ -88,35 +70,6 @@ class Maze:
                     result += '.'
             result += '\n'
         return result      
-        
-
-
-#***************************************************#
-
-def main(stdscr):
-    m = Maze('./mazes/m1.txt')
-    m.maze[0][0].content = 'A'
-    m.maze[4][4].content = 'X'
-    m.maze[2][1].content = 'a'
-    
-    #Testing curses    
-    #curses.noecho()
-    #curses.cbreak()
-    #stdscr.keypad(True)
-
-    s = str(m)
-    stdscr.addstr(s)
-    stdscr.refresh()
-    time.sleep(2)
-
-    
-    #curses.nocbreak()
-    #stdscr.keypad(False)
-    #curses.echo()
-    #curses.endwin()
-
-if __name__ == "__main__":
-    wrapper(main)
 
     
     

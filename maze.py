@@ -43,7 +43,16 @@ def build_cells_from_file(path):
 class Maze:
 
 	def __init__(self, configfile_path):
-		self.width, self.height, self.cell_tab = build_cells_from_file(configfile_path) 
+		self.cell_tab = list()
+		with open(configfile_path) as configfile:
+			for line in configfile:
+				cell_line = list()
+				for cell in line.split(" "):
+					cell_line.append(Cell(cell))
+				
+				self.cell_tab.append(cell_line)
+		self.width = len(self.cell_tab[0])
+		self.height = len(self.cell_tab)
 
 
 	def __str__(self):

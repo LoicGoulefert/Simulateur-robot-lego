@@ -10,8 +10,9 @@ import socket, _thread
 
 #Others
 from maze import Maze
+from server import *
 
-# Main curses window init
+# Main curses window init (faudra le foutre autre part ça nique le terminal des fois)
 stdscr = curses.initscr()
 
 class Simulator:
@@ -103,7 +104,6 @@ class Simulator:
 			window.refresh()
 
 
-
 #***************************************************#
 
 # Fonction de test sans TCP avec le plannif
@@ -113,8 +113,11 @@ def init_coord_moves(simu, robots_coord, obj, static_obj, moves):
 	simu.static_obj_coord = static_obj
 	simu.move_list = moves
 
+#***************************************************#
 
 def reverse_move(move):
+	"""Return the opposite direction of move.
+	Useful for one_step_backward()"""
 	temp = move.split(' ')
 	rev_move = temp[1]
 	if rev_move == "UP":
@@ -126,8 +129,6 @@ def reverse_move(move):
 	elif rev_move == "LEFT":
 		rev_move = "RIGHT"
 	return temp[0], rev_move
-
-
 
 def print_with_curses(stdscr, simulator):
 	""" Draws the simulation in a pretty terminal."""
@@ -150,6 +151,7 @@ def print_with_curses(stdscr, simulator):
 	bottom_w.addstr("Q: Reculer d'une étape\t\tX: Quitter\nD: Avancer d'une étape\t\t", curses.A_BOLD)
 	bottom_w.refresh()
 
+	# The different actions possible
 	while True:
 		c = stdscr.getch()
 		if c == ord('x'):
@@ -159,15 +161,10 @@ def print_with_curses(stdscr, simulator):
 		elif c == ord('q'):
 			simulator.one_step_backward(maze_w)
 
-
-#***************************************************#
-
-
-
-
 #***************************************************#
 
 if __name__ == "__main__":
+	"""
 	robots_coord, objectives, static_obj = {}, {}, {}
 	robots_coord['A'] = (0, 0)
 	robots_coord['B'] = (4, 4)
@@ -175,9 +172,11 @@ if __name__ == "__main__":
 	static_obj['b'] = (2, 2)
 	moves = ["A DOWN", "B UP", "A RIGHT", "B LEFT", "B UP", "A UP", "A RIGHT", 
 	"B UP", "B RIGHT", "B UP", "B LEFT", "A RIGHT", "B LEFT", "B LEFT", "B DOWN", "B RIGHT", "B DOWN", "B UP"]
-
+	"""
 	simu = Simulator('./mazes/m1.txt')
-	init_coord_moves(simu, robots_coord, objectives, static_obj, moves)
+	print("Waiting for planner to connect...")
+	objectives_coord, static_obj_coord, robots_coord, move_list = start_server()
+	init_coord_moves(simu, robots_coord, objectives_coord, static_obj_coord, move_list)
 	simu.update_maze()
 
 	wrapper(print_with_curses, simu)

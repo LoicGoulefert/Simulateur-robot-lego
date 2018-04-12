@@ -19,14 +19,27 @@ class Simulator:
 	def __init__(self, path):
 		self.maze = Maze(path)
 		self.robots_coord = {} 		# Store the current robots coordinates to display them
-		self.objectives_coord = {}  # Also stores the objectives but they are static (?)
-		self.move_list = [] 		# Store the robots moves reveived from the planner
+		self.objectives_coord = {}  # Store the objectives that can be collected
+		self.static_obj_coord = {}	# Store the objectives that can't be collected
+		self.move_list = [] 		# Store the robots moves received from the planner
 		self.move_history = [] 		# Store the moves made by the robots
 
 	def update_coord(self, robot, move):
+		"""This function is called at each step (forward or backward)
+		It updates the robot's position, and the cell content if they are any
+		collectable objectives on it."""
+
 		ct = self.maze.cell_tab
 		x, y = self.robots_coord[robot]
-		#
+		content = ct[x][y].content
+		#We remove any objective after the robot went through
+		#Because we assume an objective can't be on the exit cell
+		for obj in list(self.objectives_coord.keys()):
+			if obj in content:
+				content.remove(obj)
+				#del self.objectives_coord[obj]
+				# Might be useful at some point
+
 		ct[x][y].content.remove(robot)
 
 		if move == "UP": x -= 1
@@ -42,14 +55,20 @@ class Simulator:
 		self.robots_coord[robot] = x, y
 
 	def update_maze(self):
-		""" Update the cells content in the maze"""
+		""" Update the cells content in the maze.
+		Called once when initializing the simulation."""
+		ct = self.maze.cell_tab
 		for robot in self.robots_coord.keys():
 			x, y = self.robots_coord[robot]
-			self.maze.cell_tab[x][y].content.append(robot)
+			ct[x][y].content.append(robot)
 
 		for obj in self.objectives_coord.keys():
 			x, y = self.objectives_coord[obj]
-			self.maze.cell_tab[x][y].content.append(obj)
+			ct[x][y].content.append(obj)
+
+		for obj in self.static_obj_coord.keys():
+			x, y = self.static_obj_coord[obj]
+			ct[x][y].content.append(obj)
 
 	def one_step_forward(self, window):
 		"""Process the next move in the move_list.
@@ -88,8 +107,10 @@ class Simulator:
 #***************************************************#
 
 # Fonction de test sans TCP avec le plannif
-def init_coord_moves(simu, robots_coord, moves):
+def init_coord_moves(simu, robots_coord, obj, static_obj, moves):
 	simu.robots_coord = robots_coord
+	simu.objectives_coord = obj
+	simu.static_obj_coord = static_obj
 	simu.move_list = moves
 
 
@@ -109,6 +130,7 @@ def reverse_move(move):
 
 
 def print_with_curses(stdscr, simulator):
+	""" Draws the simulation in a pretty terminal."""
 	simulator.robots_coord['A'] = (0, 0)
 	simulator.maze.cell_tab[0][0].content[0] = 'A'
 
@@ -146,15 +168,16 @@ def print_with_curses(stdscr, simulator):
 #***************************************************#
 
 if __name__ == "__main__":
-	robots_coord = {}
+	robots_coord, objectives, static_obj = {}, {}, {}
 	robots_coord['A'] = (0, 0)
 	robots_coord['B'] = (4, 4)
-	robots_coord['a'] = (1, 1)
+	objectives['a'] = (1, 1)
+	static_obj['b'] = (2, 2)
 	moves = ["A DOWN", "B UP", "A RIGHT", "B LEFT", "B UP", "A UP", "A RIGHT", 
-	"B UP", "B RIGHT", "B UP", "B LEFT", "A RIGHT"]
+	"B UP", "B RIGHT", "B UP", "B LEFT", "A RIGHT", "B LEFT", "B LEFT", "B DOWN", "B RIGHT", "B DOWN", "B UP"]
 
 	simu = Simulator('./mazes/m1.txt')
-	init_coord_moves(simu, robots_coord, moves)
+	init_coord_moves(simu, robots_coord, objectives, static_obj, moves)
 	simu.update_maze()
 
 	wrapper(print_with_curses, simu)

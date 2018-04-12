@@ -20,6 +20,7 @@ class Cell:
         self.walls['DOWN'] = walls[2] == '0'
         self.walls['LEFT'] = walls[3] == '0'
         # Content is used to store a robot, an objective or the exit
-        self.content = ' '
-        # We can add self.color
+        # Content can store more than 1 robot
+        self.content = []
+        
 

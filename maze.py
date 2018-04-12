@@ -47,30 +47,39 @@ class Maze:
 
 
 	def __str__(self):
-		"""Return maze table in ASCII"""
+		"""Return maze table in ASCII.
+		A cell can have more than 1 robot (or objective), but we display max. 2 objects per cell."""
 		result = '.' + self.width * '___.'
 		result += '\n'
 
 		for i in range(self.height):
 			result += '|'
 
+			# First "line" of the line
 			for j in range(self.width):
-				result += '   '
+				content = self.cell_tab[i][j].content
+				if content == [] or len(content) == 1:
+					result += '   '
+				elif len(content) > 1:
+					result += ' {} '.format(content[1])
 				if j==self.width-1 or self.cell_tab[i][j].walls['RIGHT']:
 					result += '|'
 				else:
 					result += ' '
 			result += '\n|'
 
+			# Seconde "line" of the line
 			for j in range(self.width):
+				content = self.cell_tab[i][j].content
 				if i==self.height-1 or self.cell_tab[i][j].walls['DOWN']:
-					content = self.cell_tab[i][j].content
-					if content == ' ':
+					if content == []:
 						result += '___'
 					else:
-						result += '_{}_'.format(content)
+						result += '_{}_'.format(content[0])
+				elif content != []:
+					result += ' {} '.format(self.cell_tab[i][j].content[0])
 				else:
-					result += ' {} '.format(self.cell_tab[i][j].content)
+					result += '   '
 				if j==self.width-1 or self.cell_tab[i][j].walls['RIGHT']:
 					result += '|'
 				else:

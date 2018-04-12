@@ -5,29 +5,29 @@
 #Libs
 import curses
 from curses import wrapper
-import socket
+import socket, _thread
 
 
 #Others
-from maze import *
+from maze import Maze
 
 # Main curses window init
 stdscr = curses.initscr()
-
 
 class Simulator:
 
 	def __init__(self, path):
 		self.maze = Maze(path)
-		self.robots_coord = {} # Store the current robots coordinates to display them
-							   # Also stores the objectives but they are static (?)
-		self.move_list = [] # Store the robots moves reveived from the planner
-		self.move_history = [] # Store the moves made by the robots
+		self.robots_coord = {} 		# Store the current robots coordinates to display them
+		self.objectives_coord = {}  # Also stores the objectives but they are static (?)
+		self.move_list = [] 		# Store the robots moves reveived from the planner
+		self.move_history = [] 		# Store the moves made by the robots
 
 	def update_coord(self, robot, move):
 		ct = self.maze.cell_tab
 		x, y = self.robots_coord[robot]
-		ct[x][y].content = ' '
+		#
+		ct[x][y].content.remove(robot)
 
 		if move == "UP": x -= 1
 		elif move == "RIGHT": y += 1
@@ -38,15 +38,18 @@ class Simulator:
 		assert x >= 0 and y >= 0 and x < self.maze.height and y < self.maze.width, \
 		"Illegal move. (x = {} y = {} move = {}".format(x, y, move)
 
-		ct[x][y].content = robot
+		ct[x][y].content.append(robot)
 		self.robots_coord[robot] = x, y
 
 	def update_maze(self):
-		""" Update the cells content in the maze to
-		match the robot coordinates"""
+		""" Update the cells content in the maze"""
 		for robot in self.robots_coord.keys():
 			x, y = self.robots_coord[robot]
-			self.maze.cell_tab[x][y].content = robot
+			self.maze.cell_tab[x][y].content.append(robot)
+
+		for obj in self.objectives_coord.keys():
+			x, y = self.objectives_coord[obj]
+			self.maze.cell_tab[x][y].content.append(obj)
 
 	def one_step_forward(self, window):
 		"""Process the next move in the move_list.
@@ -83,8 +86,8 @@ class Simulator:
 
 
 #***************************************************#
-# Fonctions de test sans TCP avec le plannif
 
+# Fonction de test sans TCP avec le plannif
 def init_coord_moves(simu, robots_coord, moves):
 	simu.robots_coord = robots_coord
 	simu.move_list = moves
@@ -107,7 +110,7 @@ def reverse_move(move):
 
 def print_with_curses(stdscr, simulator):
 	simulator.robots_coord['A'] = (0, 0)
-	simulator.maze.cell_tab[0][0].content = 'A'
+	simulator.maze.cell_tab[0][0].content[0] = 'A'
 
 	ascii_maze = str(simulator.maze)
 
@@ -137,10 +140,16 @@ def print_with_curses(stdscr, simulator):
 
 #***************************************************#
 
+
+
+
+#***************************************************#
+
 if __name__ == "__main__":
 	robots_coord = {}
 	robots_coord['A'] = (0, 0)
 	robots_coord['B'] = (4, 4)
+	robots_coord['a'] = (1, 1)
 	moves = ["A DOWN", "B UP", "A RIGHT", "B LEFT", "B UP", "A UP", "A RIGHT", 
 	"B UP", "B RIGHT", "B UP", "B LEFT", "A RIGHT"]
 

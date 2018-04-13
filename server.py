@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+#Libs
 from socket import *
 import time
 
@@ -31,12 +32,14 @@ def string_to_movelist(message):
     return move_list
 
 def dispatcher(s):
-    """Accept a connection with the planner, receive and convert datas for initialization."""
+    """Accept a connection with the planner, return datas for initialization."""
     sClient, adrClient = s.accept()
     print("Connexion : " + adrClient[0] + ':' + str(adrClient[1]) + "-" + time.strftime("%H:%M:%S", time.localtime()))
     return handleClient(sClient, adrClient)
 
 def handleClient(sClient, adrClient):
+    """Receive messages from the client (planner), convert them to
+    readable datas for the simulator."""
     objectives_coord = {}
     static_obj_coord = {}
     robots_coord = {}
@@ -66,6 +69,8 @@ def handleClient(sClient, adrClient):
 
 
 def start_server():
+    """Start the server, wait for connection, receive datas for the simulator
+    and return them. Close the socket before returning."""
     s = socket(AF_INET, SOCK_STREAM)
     host = ('127.0.0.2', 5000)
     s.bind(host) # Écoute à l'adresse et au port définis dans host

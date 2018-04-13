@@ -114,13 +114,11 @@ class Simulator:
 #***************************************************#
 
 # Fonction de test sans TCP avec le plannif
-def init_coord_moves(simu, robots_coord, obj, static_obj, moves):
+def init_simulator(simu, robots_coord, obj, static_obj, moves):
 	simu.robots_coord = robots_coord
 	simu.objectives_coord = obj
 	simu.static_obj_coord = static_obj
 	simu.move_list = moves
-
-#***************************************************#
 
 def reverse_move(move):
 	"""Return the opposite direction of move.
@@ -171,10 +169,10 @@ def print_with_curses(stdscr, simulator):
 #***************************************************#
 
 if __name__ == "__main__":
-	simu = Simulator('./mazes/m1.txt')
 	print("Waiting for planner to connect...")
-	objectives_coord, static_obj_coord, robots_coord, move_list = start_server()
-	init_coord_moves(simu, robots_coord, objectives_coord, static_obj_coord, move_list)
+	objectives_coord, static_obj_coord, robots_coord, move_list, config_file = start_server()
+	simu = Simulator('./mazes/' + config_file)
+	init_simulator(simu, robots_coord, objectives_coord, static_obj_coord, move_list)
 	simu.update_maze()
 
 	wrapper(print_with_curses, simu)

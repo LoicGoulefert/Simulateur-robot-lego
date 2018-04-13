@@ -14,6 +14,8 @@ from cell import Cell
 class Maze:
 
 	def __init__(self, configfile_path):
+		"""Init the cell_tab attribute from the config file.
+		Init the width and height of the maze. """
 		self.cell_tab = list()
 		with open(configfile_path) as configfile:
 			for line in configfile:

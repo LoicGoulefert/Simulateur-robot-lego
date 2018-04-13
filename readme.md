@@ -4,27 +4,17 @@
 
 The simulator's maze is configured by a file wich has the following format :
 
-
-5 5
-
+```
 0010 0110 0101 0101 0011
-
 1110 1101 0011 0101 1011
-
 1110 0001 1000 1010 1000
-
 1110 0111 0111 1101 0011
-
 1000 1000 1100 0001 1000
+```
 
 
-
-
-
-The first line are the dimensions of the maze. (WIDTH, HEIGHT)
-
-The next lines are the cells in the maze, separated with a single space,
-and each line ends with a '\n'.
+Each line represent the cells in the maze, separated with a single space,
+and ends with a '\n'.
 A cell is represented with a string of 4 zeros and ones. A 1 mean there is no wall,
 a 0 mean there is a wall.
 The walls are described in this order : UP, RIGHT, DOWN, LEFT
@@ -39,8 +29,14 @@ An instruction looks like "A RIGHT", or "B UP" with A, B the identifiers of the 
 
 ## Usage
 
+In a first terminal, execute :
 `./simulator.py`
 
+This will launch the server, waiting for the planner's instructions
 
+In a second terminal :
+`./client.py`
+
+You can find the **client.py** script [here](https://github.com/LoicGoulefert/Simulateur-robot-lego) (work on progress)
 
 

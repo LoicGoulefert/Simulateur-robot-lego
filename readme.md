@@ -37,6 +37,6 @@ This will launch the server, waiting for the planner's instructions
 In a second terminal :
 `./client.py`
 
-You can find the **client.py** script [here](https://github.com/LoicGoulefert/Simulateur-robot-lego) (work on progress)
+You can find the **client.py** script [here](https://github.com/LoicGoulefert/Planificateur-robot-lego) (work on progress)
 
 

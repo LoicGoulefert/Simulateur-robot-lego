@@ -13,7 +13,8 @@ Packets identifiers (first 2 char of each message):
 #2 -> coord. static objectives
 #3 -> coord. robots
 #4 -> move list
-#0 -> End of communication"""
+#0 -> End of communication
+#c -> config file name (must be the same on both sides) (maybe use the same directory ?)"""
 
 def string_to_dict(message):
     """Convert a message containing coordinates to a dictionnary."""
@@ -29,10 +30,8 @@ def string_to_movelist(message):
     move_list = message[2:].split(',')
     return move_list
 
-
 def dispatcher(s):
     """Accept a connection with the planner, receive and convert datas for initialization."""
-# Accepte une connexion puis affiche l'adresse
     sClient, adrClient = s.accept()
     print("Connexion : " + adrClient[0] + ':' + str(adrClient[1]) + "-" + time.strftime("%H:%M:%S", time.localtime()))
     return handleClient(sClient, adrClient)
@@ -42,6 +41,7 @@ def handleClient(sClient, adrClient):
     static_obj_coord = {}
     robots_coord = {}
     move_list = []
+    config_file = ""
 
     while True:
         message = sClient.recv(2048).decode()
@@ -56,11 +56,12 @@ def handleClient(sClient, adrClient):
             robots_coord = string_to_dict(message)
         elif message_id == '#4':
             move_list += string_to_movelist(message)
+        elif message_id == '#c':
+            config_file = message[2:]
 
         sClient.send("OK".encode())
-        #print(adrClient[0] + ':' + str(adrClient[1]) + "-" + time.strftime("%H:%M:%S", time.localtime()) + "->" + message)
     sClient.close() # Quand la connexion se termine, on ferme la socket associée à ce client
-    return objectives_coord, static_obj_coord, robots_coord, move_list
+    return objectives_coord, static_obj_coord, robots_coord, move_list, config_file
 
 
 
@@ -70,10 +71,10 @@ def start_server():
     s.bind(host) # Écoute à l'adresse et au port définis dans host
     s.listen(1) # On accepte 1 connexion au maximum
 
-    objectives_coord, static_obj_coord, robots_coord, move_list = dispatcher(s)
+    objectives_coord, static_obj_coord, robots_coord, move_list, config_file = dispatcher(s)
 
     s.close()
-    return objectives_coord, static_obj_coord, robots_coord, move_list
+    return objectives_coord, static_obj_coord, robots_coord, move_list, config_file
 
 if __name__ == '__main__':
-    objectives_coord, static_obj_coord, robots_coord, move_list = start_server()
+    objectives_coord, static_obj_coord, robots_coord, move_list, config_file = start_server()

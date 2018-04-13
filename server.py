@@ -19,7 +19,6 @@ def string_to_dict(message):
     """Convert a message containing coordinates to a dictionnary."""
     dic = {}
     obj_list = message[2:].split(',')
-    #print('Obj list : ' + str(obj_list))
     for obj in obj_list:
         temp = obj.split(' ')
         dic[temp[0]] = (int(temp[1]), int(temp[2]))

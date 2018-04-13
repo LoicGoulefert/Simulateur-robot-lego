@@ -9,35 +9,6 @@ import numpy as np
 from cell import Cell
 
 
-def build_cells_from_file(path):
-	"""Build a matrix of cells from the config file.
-	Return a tuple containing width, height, matrix of cells"""
-	
-	f = open(path, 'r')
-	
-	# Get the dimension of the maze from file
-	l = f.readline().split(' ')
-	width, height = int(l[0]), int(l[1])
-	
-	cell_tab = np.empty((height, width), dtype=Cell)
-	
-	i, j = 0, 0
-	
-	# Read file in order to create the cell matrix
-	for i in range(height):
-		line = f.readline()
-		l = line.strip('\n').split(' ')
-		j = 0
-		for cell in l:
-			c = Cell(cell)
-			cell_tab[i][j] = c
-			j += 1
-	
-	f.close()
-	
-	return width, height, cell_tab
-
-
 #***************************************************#
 
 class Maze:
@@ -96,5 +67,4 @@ class Maze:
 
 			result += '\n'
 		return result
-
 

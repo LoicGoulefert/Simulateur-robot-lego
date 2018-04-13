@@ -5,8 +5,6 @@
 #Libs
 import curses
 from curses import wrapper
-import socket, _thread
-
 
 #Others
 from maze import Maze
@@ -24,25 +22,35 @@ class Simulator:
 		self.static_obj_coord = {}	# Store the objectives that can't be collected
 		self.move_list = [] 		# Store the robots moves received from the planner
 		self.move_history = [] 		# Store the moves made by the robots
+		self.collected_history = {} # Store when and where a robot collected an objective
 
-	def update_coord(self, robot, move):
+	def update_coord(self, robot, move, forward=True):
 		"""This function is called at each step (forward or backward)
 		It updates the robot's position, and the cell content if they are any
-		collectable objectives on it."""
+		collectable objectives on it.
+		Parameter 'forward': true if we're stepping forward, false if backward"""
 
 		ct = self.maze.cell_tab
 		x, y = self.robots_coord[robot]
 		content = ct[x][y].content
-		#We remove any objective after the robot went through
-		#Because we assume an objective can't be on the exit cell
-		for obj in list(self.objectives_coord.keys()):
-			if obj in content:
-				content.remove(obj)
-				#del self.objectives_coord[obj]
-				# Might be useful at some point
 
+		# We remove any objective after the robot went through
+		# Because we assume an objective can't be on the exit cell
+		if forward:
+			for obj in self.objectives_coord.keys():
+				if obj in content:
+					content.remove(obj)
+					self.collected_history[obj, robot] = x, y
+		else:
+			for obj in self.objectives_coord.keys():
+				if (obj, robot) in self.collected_history:
+					if self.collected_history[obj, robot] == (x, y):
+						content.append(obj)
+
+		# Remove the robot at the old coords
 		ct[x][y].content.remove(robot)
 
+		# Update x, y coords
 		if move == "UP": x -= 1
 		elif move == "RIGHT": y += 1
 		elif move == "DOWN": x += 1
@@ -50,8 +58,9 @@ class Simulator:
 		else: print("update_coord(): Unknown move.")
 
 		assert x >= 0 and y >= 0 and x < self.maze.height and y < self.maze.width, \
-		"Illegal move. (x = {} y = {} move = {}".format(x, y, move)
-
+		"Illegal move. (x = {} y = {} move = {})".format(x, y, move)
+ 
+		#Update the cell content at the new coords
 		ct[x][y].content.append(robot)
 		self.robots_coord[robot] = x, y
 
@@ -79,7 +88,6 @@ class Simulator:
 		if self.move_list != []:
 			move = self.move_list.pop(0)
 			self.move_history.append(move)
-
 			temp = move.split(' ')
 			robot, move = temp[0], temp[1]
 			self.update_coord(robot, move)
@@ -96,8 +104,7 @@ class Simulator:
 			move = self.move_history.pop()
 			self.move_list.insert(0, move)
 			robot, move = reverse_move(move)
-			window.addstr(move)
-			self.update_coord(robot, move)
+			self.update_coord(robot, move, forward=False)
 			ascii_maze = str(self.maze)
 			window.clear()
 			window.addstr(ascii_maze)
@@ -164,15 +171,6 @@ def print_with_curses(stdscr, simulator):
 #***************************************************#
 
 if __name__ == "__main__":
-	"""
-	robots_coord, objectives, static_obj = {}, {}, {}
-	robots_coord['A'] = (0, 0)
-	robots_coord['B'] = (4, 4)
-	objectives['a'] = (1, 1)
-	static_obj['b'] = (2, 2)
-	moves = ["A DOWN", "B UP", "A RIGHT", "B LEFT", "B UP", "A UP", "A RIGHT", 
-	"B UP", "B RIGHT", "B UP", "B LEFT", "A RIGHT", "B LEFT", "B LEFT", "B DOWN", "B RIGHT", "B DOWN", "B UP"]
-	"""
 	simu = Simulator('./mazes/m1.txt')
 	print("Waiting for planner to connect...")
 	objectives_coord, static_obj_coord, robots_coord, move_list = start_server()

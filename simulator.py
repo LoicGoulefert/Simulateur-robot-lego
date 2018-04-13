@@ -28,8 +28,8 @@ class Simulator:
 		"""This function is called at each step (forward or backward)
 		It updates the robot's position, and the cell content if they are any
 		collectable objectives on it.
-		Parameter 'forward': true if we're stepping forward, false if backward"""
-
+		Parameter 'forward': true if we're stepping forward, false if backward.
+		"""
 		ct = self.maze.cell_tab
 		x, y = self.robots_coord[robot]
 		content = ct[x][y].content
@@ -65,8 +65,9 @@ class Simulator:
 		self.robots_coord[robot] = x, y
 
 	def update_maze(self):
-		""" Update the cells content in the maze.
-		Called once when initializing the simulation."""
+		"""Update the cells content in the maze.
+		Called once when initializing the simulation.
+		"""
 		ct = self.maze.cell_tab
 		for robot in self.robots_coord.keys():
 			x, y = self.robots_coord[robot]
@@ -84,7 +85,8 @@ class Simulator:
 		"""Process the next move in the move_list.
 		Remove that move from the move_list and
 		add it to the move_history.
-		Refresh the curses window when it's done."""
+		Refresh the curses window when it's done.
+		"""
 		if self.move_list != []:
 			move = self.move_list.pop(0)
 			self.move_history.append(move)
@@ -99,7 +101,8 @@ class Simulator:
 	def one_step_backward(self, window):
 		"""Cancel the last move done.
 		Remove it from the move_history and add it to the move_list.
-		Refresh the curses window when it's done."""
+		Refresh the curses window when it's done.
+		"""
 		if self.move_history != []:
 			move = self.move_history.pop()
 			self.move_list.insert(0, move)
@@ -113,8 +116,9 @@ class Simulator:
 
 #***************************************************#
 
-# Fonction de test sans TCP avec le plannif
+
 def init_simulator(simu, robots_coord, obj, static_obj, moves):
+	"""Initialize the simulator's attributes."""
 	simu.robots_coord = robots_coord
 	simu.objectives_coord = obj
 	simu.static_obj_coord = static_obj
@@ -122,7 +126,8 @@ def init_simulator(simu, robots_coord, obj, static_obj, moves):
 
 def reverse_move(move):
 	"""Return the opposite direction of move.
-	Useful for one_step_backward()"""
+	Useful for one_step_backward()
+	"""
 	temp = move.split(' ')
 	rev_move = temp[1]
 	if rev_move == "UP":
@@ -136,7 +141,7 @@ def reverse_move(move):
 	return temp[0], rev_move
 
 def print_with_curses(stdscr, simulator):
-	""" Draws the simulation in a pretty terminal."""
+	"""Draw the simulation in a pretty terminal."""
 	simulator.robots_coord['A'] = (0, 0)
 	simulator.maze.cell_tab[0][0].content[0] = 'A'
 

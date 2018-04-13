@@ -4,18 +4,22 @@
 from socket import *
 import time
 
-"""The server receive the objectives coord, the robots coord and the move list.
+"""The server receive the objectives coord, the robots coord, the move list and 
+the configuration filename from a client.
+
 Objectives coord and robots coord must fit in a 2048 char long string, and the
 move list has no limitation in size, but will be sent in chunks of 2048bytes.
 Once the last message is received, the server disconnect and parse the data received
 in order to give it to the simulator.
+
 Packets identifiers (first 2 char of each message):
+#c -> config file name (must be the same on both sides) (maybe use the same directory ?)
 #1 -> coord. objectives
 #2 -> coord. static objectives
 #3 -> coord. robots
 #4 -> move list
 #0 -> End of communication
-#c -> config file name (must be the same on both sides) (maybe use the same directory ?)"""
+"""
 
 def string_to_dict(message):
     """Convert a message containing coordinates to a dictionnary."""
@@ -39,7 +43,8 @@ def dispatcher(s):
 
 def handleClient(sClient, adrClient):
     """Receive messages from the client (planner), convert them to
-    readable datas for the simulator."""
+    readable datas for the simulator.
+    """
     objectives_coord = {}
     static_obj_coord = {}
     robots_coord = {}
@@ -63,21 +68,18 @@ def handleClient(sClient, adrClient):
             config_file = message[2:]
 
         sClient.send("OK".encode())
-    sClient.close() # Quand la connexion se termine, on ferme la socket associée à ce client
+    sClient.close() # Closing the socket when the connection with the client is over
     return objectives_coord, static_obj_coord, robots_coord, move_list, config_file
-
-
 
 def start_server():
     """Start the server, wait for connection, receive datas for the simulator
-    and return them. Close the socket before returning."""
+    and return them. Close the socket before returning.
+    """
     s = socket(AF_INET, SOCK_STREAM)
     host = ('127.0.0.2', 5000)
-    s.bind(host) # Écoute à l'adresse et au port définis dans host
-    s.listen(1) # On accepte 1 connexion au maximum
-
+    s.bind(host)
+    s.listen(1)
     objectives_coord, static_obj_coord, robots_coord, move_list, config_file = dispatcher(s)
-
     s.close()
     return objectives_coord, static_obj_coord, robots_coord, move_list, config_file
 

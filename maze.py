@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-""" This module represent the maze that is being simulated. """
+"""This module represent the maze that is being simulated."""
 
 #Libs
 import numpy as np
@@ -8,14 +8,12 @@ import numpy as np
 #Others
 from cell import Cell
 
-
-#***************************************************#
-
 class Maze:
 
 	def __init__(self, configfile_path):
 		"""Init the cell_tab attribute from the config file.
-		Init the width and height of the maze. """
+		Init the width and height of the maze.
+		"""
 		self.cell_tab = list()
 		with open(configfile_path) as configfile:
 			for line in configfile:
@@ -27,10 +25,12 @@ class Maze:
 		self.width = len(self.cell_tab[0])
 		self.height = len(self.cell_tab)
 
-
 	def __str__(self):
 		"""Return maze table in ASCII.
-		A cell can have more than 1 robot (or objective), but we display max. 2 objects per cell."""
+
+		A cell can have more than 1 robot (or objective), 
+		but we display max. 2 objects per cell.
+		"""
 		result = '.' + self.width * '___.'
 		result += '\n'
 
@@ -69,4 +69,3 @@ class Maze:
 
 			result += '\n'
 		return result
-

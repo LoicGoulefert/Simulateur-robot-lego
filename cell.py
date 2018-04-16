@@ -19,11 +19,10 @@ class Cell:
             DOWN -> no wall
             LEFT -> wall
         """
-        self.walls = {}
-        self.walls['UP'] = walls[0] == '0'
-        self.walls['RIGHT'] = walls[1] == '0'
-        self.walls['DOWN'] = walls[2] == '0'
-        self.walls['LEFT'] = walls[3] == '0'
+        self.UP = walls[0] == '1'
+        self.RIGHT = walls[1] == '1'
+        self.DOWN = walls[2] == '1'
+        self.LEFT = walls[3] == '1'
         # Content is used to store a robot, an objective or the exit
         # It can store more than 1 object, but only 2 are displayed maximum.
         self.content = []

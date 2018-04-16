@@ -41,7 +41,7 @@ class Maze:
                     result += '   '
                 elif len(content) > 1:
                     result += ' {} '.format(content[1])
-                if cell.walls['RIGHT']:
+                if not cell.RIGHT:
                     result += '|'
                 else:
                     result += ' '
@@ -50,7 +50,7 @@ class Maze:
             # Seconde "line" of the line
             for cell in line:
                 content = cell.content
-                if line == self.cell_tab[self.height-1] or cell.walls['DOWN']:
+                if not cell.DOWN:
                     if content == []:
                         result += '___'
                     else:
@@ -59,7 +59,7 @@ class Maze:
                     result += ' {} '.format(content[0])
                 else:
                     result += '   '
-                if cell.walls['RIGHT']:
+                if not cell.RIGHT:
                     result += '|'
                 else:
                     result += '.'

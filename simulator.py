@@ -17,14 +17,27 @@ stdscr = curses.initscr()
 
 class Simulator:
 
-    def __init__(self, path):
+    def __init__(self, path, robots_coord, obj, static_obj, moves):
         self.maze = Maze(path)
-        self.robots_coord = {}       # Current robots' coordinates
-        self.objectives_coord = {}   # Objectives that can be collected
-        self.static_obj_coord = {}   # Objectives that can't be collected
-        self.move_list = []          # Moves received from the planner
-        self.move_history = []       # Moves made by the robots
-        self.collected_history = {}  # Coords of collected objectives
+        self.robots_coord = robots_coord    # Current robots' coordinates
+        self.objectives_coord = obj         # Objectives that can be collected
+        self.static_obj_coord = static_obj  # Obj. that can't be collected
+        self.move_list = moves              # Moves received from the planner
+        self.move_history = []              # Moves made by the robots
+        self.collected_history = {}         # Coords of collected objectives
+
+        ct = self.maze.cell_tab
+        for robot in self.robots_coord.keys():
+            x, y = self.robots_coord[robot]
+            ct[x][y].content.append(robot)
+
+        for obj in self.objectives_coord.keys():
+            x, y = self.objectives_coord[obj]
+            ct[x][y].content.append(obj)
+
+        for obj in self.static_obj_coord.keys():
+            x, y = self.static_obj_coord[obj]
+            ct[x][y].content.append(obj)
 
     def update_coord(self, robot, move, forward=True):
         """This function is called at each step (forward or backward)
@@ -72,23 +85,6 @@ class Simulator:
         ct[x][y].content.append(robot)
         self.robots_coord[robot] = x, y
 
-    def update_maze(self):
-        """Update the cells content in the maze.
-        Called once when initializing the simulation.
-        """
-        ct = self.maze.cell_tab
-        for robot in self.robots_coord.keys():
-            x, y = self.robots_coord[robot]
-            ct[x][y].content.append(robot)
-
-        for obj in self.objectives_coord.keys():
-            x, y = self.objectives_coord[obj]
-            ct[x][y].content.append(obj)
-
-        for obj in self.static_obj_coord.keys():
-            x, y = self.static_obj_coord[obj]
-            ct[x][y].content.append(obj)
-
     def one_step_forward(self, window):
         """Process the next move in the move_list.
         Remove that move from the move_list and
@@ -120,14 +116,6 @@ class Simulator:
             window.clear()
             window.addstr(ascii_maze)
             window.refresh()
-
-
-def init_simulator(simu, robots_coord, obj, static_obj, moves):
-    """Initialize the simulator's attributes."""
-    simu.robots_coord = robots_coord
-    simu.objectives_coord = obj
-    simu.static_obj_coord = static_obj
-    simu.move_list = moves
 
 
 def reverse_move(move):
@@ -193,14 +181,10 @@ def main(stdscr):
     curses.curs_set(0)  # Set cursor to invisible
     objectives_coord, static_obj_coord, \
         robots_coord, move_list, config_file = server.start_server()
-    simu = Simulator('./mazes/' + config_file)
-    init_simulator(
-        simu,
-        robots_coord,
-        objectives_coord,
-        static_obj_coord,
-        move_list)
-    simu.update_maze()
+    simu = Simulator('./mazes/' + config_file,
+                     robots_coord, objectives_coord,
+                     static_obj_coord,
+                     move_list)
     print_with_curses(stdscr, simu)
 
 

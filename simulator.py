@@ -11,9 +11,6 @@ import sys
 from maze import Maze
 import server
 
-# Main curses window init
-stdscr = curses.initscr()
-
 
 class Simulator:
 
@@ -137,8 +134,9 @@ def reverse_move(move):
 
 def print_with_curses(stdscr, simulator):
     """Draw the simulation in a pretty terminal."""
-    simulator.robots_coord['A'] = (0, 0)
-    simulator.maze.cell_tab[0][0].content[0] = 'A'
+    # Main curses window init
+    stdscr = curses.initscr()
+    curses.curs_set(0)  # Set cursor to invisible
 
     ascii_maze = str(simulator.maze)
 
@@ -176,20 +174,23 @@ def print_with_curses(stdscr, simulator):
             simulator.one_step_backward(maze_w)
 
 
-def main(stdscr):
+def main():
+    print("Configure server parameters :")
+    IPAdr = input("IP : ")
+    port = int(input("Port : "))
     print("Waiting for planner to connect...")
-    curses.curs_set(0)  # Set cursor to invisible
     objectives_coord, static_obj_coord, \
-        robots_coord, move_list, config_file = server.start_server()
+        robots_coord, move_list, config_file = server.start_server(IPAdr, port)
     simu = Simulator('./mazes/' + config_file,
                      robots_coord, objectives_coord,
                      static_obj_coord,
                      move_list)
-    print_with_curses(stdscr, simu)
+    return simu
 
 
 if __name__ == "__main__":
+    simu = main()
     try:
-        wrapper(main)
+        wrapper(print_with_curses, simu)
     except SystemExit:
         print("Curses error: Maze was too big for the terminal.")

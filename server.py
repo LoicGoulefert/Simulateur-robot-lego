@@ -77,12 +77,12 @@ def handleClient(sClient, adrClient):
         robots_coord, move_list, config_file
 
 
-def start_server():
+def start_server(IPAdr, port):
     """Start the server, wait for connection, receive datas for the simulator
     and return them. Close the socket before returning.
     """
     s = socket(AF_INET, SOCK_STREAM)
-    host = ('127.0.0.2', 5000)
+    host = (IPAdr, port)
     s.bind(host)
     s.listen(1)
     objectives_coord, static_obj_coord, \

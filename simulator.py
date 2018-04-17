@@ -135,6 +135,23 @@ def reverse_move(move):
     return temp[0], rev_move
 
 
+def refresh_option_window(window, Q, D):
+    """Refresh the option window."""
+    window.clear()
+    if Q:
+        window.addstr("Q: Reculer d'une etape\t\tX: Quitter\n",
+                      curses.A_BOLD)
+    else:
+        window.addstr("Q: Reculer d'une etape\t\t")
+        window.addstr("X: Quitter\n", curses.A_BOLD)
+    if D:
+        window.addstr("D: Avancer d'une etape\t\t",
+                      curses.A_BOLD)
+    else:
+        window.addstr("D: Avancer d'une etape\t\t")
+    window.refresh()
+
+
 def print_with_curses(stdscr, simulator):
     """Draw the simulation in a pretty terminal."""
     # Main curses window init
@@ -161,9 +178,9 @@ def print_with_curses(stdscr, simulator):
     height = 10
     width = curses.COLS-1
     bottom_w = curses.newwin(height, width, begin_y, begin_x)
-    bottom_w.addstr(
-        "Q: Reculer d'une etape\t\tX: Quitter\nD: Avancer d'une etape\t\t",
-        curses.A_BOLD)
+    bottom_w.addstr("Q: Reculer d'une etape\t\t")
+    bottom_w.addstr("X: Quitter\nD: Avancer d'une etape\t\t",
+                    curses.A_BOLD)
     bottom_w.refresh()
 
     # The different actions possible
@@ -175,6 +192,8 @@ def print_with_curses(stdscr, simulator):
             simulator.one_step_forward(maze_w)
         elif c == ord('q') and simulator.can_move_backward():
             simulator.one_step_backward(maze_w)
+        refresh_option_window(bottom_w, simulator.can_move_backward(),
+                              simulator.can_move_forward())
 
 
 def main():

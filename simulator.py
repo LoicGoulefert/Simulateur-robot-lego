@@ -20,8 +20,8 @@ class Simulator:
         self.objectives_coord = obj         # Objectives that can be collected
         self.static_obj_coord = static_obj  # Obj. that can't be collected
         self.move_list = moves              # Moves received from the planner
-        self.move_history = []              # Moves made by the robots
         self.collected_history = {}         # Coords of collected objectives
+        self.step = 0
 
         ct = self.maze.cell_tab
         for robot in self.robots_coord.keys():
@@ -84,35 +84,38 @@ class Simulator:
 
     def one_step_forward(self, window):
         """Process the next move in the move_list.
-        Remove that move from the move_list and
-        add it to the move_history.
         Refresh the curses window when it's done.
         """
-        if self.move_list != []:
-            move = self.move_list.pop(0)
-            self.move_history.append(move)
-            temp = move.split(' ')
-            robot, move = temp[0], temp[1]
-            self.update_coord(robot, move)
-            ascii_maze = str(self.maze)
-            window.clear()
-            window.addstr(ascii_maze)
-            window.refresh()
+        assert self.move_list != []
+        move = self.move_list[self.step]
+        self.step += 1
+        temp = move.split(' ')
+        robot, move = temp[0], temp[1]
+        self.update_coord(robot, move)
+        ascii_maze = str(self.maze)
+        window.clear()
+        window.addstr(ascii_maze)
+        window.refresh()
 
     def one_step_backward(self, window):
         """Cancel the last move done.
-        Remove it from the move_history and add it to the move_list.
         Refresh the curses window when it's done.
         """
-        if self.move_history != []:
-            move = self.move_history.pop()
-            self.move_list.insert(0, move)
-            robot, move = reverse_move(move)
-            self.update_coord(robot, move, forward=False)
-            ascii_maze = str(self.maze)
-            window.clear()
-            window.addstr(ascii_maze)
-            window.refresh()
+        assert self.move_list != []
+        self.step -= 1
+        move = self.move_list[self.step]
+        robot, move = reverse_move(move)
+        self.update_coord(robot, move, forward=False)
+        ascii_maze = str(self.maze)
+        window.clear()
+        window.addstr(ascii_maze)
+        window.refresh()
+
+    def can_move_forward(self):
+        return self.step < len(self.move_list)
+
+    def can_move_backward(self):
+        return self.step > 0
 
 
 def reverse_move(move):
@@ -168,9 +171,9 @@ def print_with_curses(stdscr, simulator):
         c = stdscr.getch()
         if c == ord('x'):
             break
-        elif c == ord('d'):
+        elif c == ord('d') and simulator.can_move_forward():
             simulator.one_step_forward(maze_w)
-        elif c == ord('q'):
+        elif c == ord('q') and simulator.can_move_backward():
             simulator.one_step_backward(maze_w)
 
 

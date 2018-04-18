@@ -135,7 +135,7 @@ def reverse_move(move):
     return temp[0], rev_move
 
 
-def refresh_option_window(window, Q, D):
+def refresh_option_window(window, Q, D, step, total):
     """Refresh the option window."""
     window.clear()
     if Q:
@@ -149,6 +149,7 @@ def refresh_option_window(window, Q, D):
                       curses.A_BOLD)
     else:
         window.addstr("D: Avancer d'une etape\t\t")
+    window.addstr("Step {} / {}".format(step, total))
     window.refresh()
 
 
@@ -181,6 +182,8 @@ def print_with_curses(stdscr, simulator):
     bottom_w.addstr("Q: Reculer d'une etape\t\t")
     bottom_w.addstr("X: Quitter\nD: Avancer d'une etape\t\t",
                     curses.A_BOLD)
+    bottom_w.addstr("Step {} / {}".format(simulator.step,
+                                          len(simulator.move_list)))
     bottom_w.refresh()
 
     # The different actions possible
@@ -193,7 +196,9 @@ def print_with_curses(stdscr, simulator):
         elif c == ord('q') and simulator.can_move_backward():
             simulator.one_step_backward(maze_w)
         refresh_option_window(bottom_w, simulator.can_move_backward(),
-                              simulator.can_move_forward())
+                              simulator.can_move_forward(),
+                              simulator.step,
+                              len(simulator.move_list))
 
 
 def main():

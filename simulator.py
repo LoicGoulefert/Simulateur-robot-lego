@@ -14,6 +14,8 @@ import server
 
 class Simulator:
 
+
+
     def __init__(self, path, robots_coord, obj, static_obj, moves):
         self.maze = Maze(path)
         self.robots_coord = robots_coord    # Current robots' coordinates
@@ -36,11 +38,11 @@ class Simulator:
             x, y = self.static_obj_coord[obj]
             ct[x][y].content.append(obj)
 
-    def update_coord(self, robot, move, forward=True):
+    def update_coord(self, robot, new_x, new_y, forward=True):
         """This function is called at each step (forward or backward)
         It updates the robot's position, and the cell content if they are any
         collectable objectives on it.
-        Parameter 'forward': true if we're stepping forward, false if backward.
+        Parameter 'forward': true if we're stepping forward, false otherwise.
         """
         ct = self.maze.cell_tab
         x, y = self.robots_coord[robot]
@@ -56,27 +58,19 @@ class Simulator:
         else:
             for obj in self.objectives_coord.keys():
                 if (obj, robot) in self.collected_history:
-                    if self.collected_history[obj, robot] == (x, y):
+                    if self.collected_history[obj, robot] == (x, y) \
+                      and obj not in content:
                         content.append(obj)
 
         # Remove the robot at the old coords
         ct[x][y].content.remove(robot)
 
-        # Update x, y coords
-        if move == "UP":
-            x -= 1
-        elif move == "RIGHT":
-            y += 1
-        elif move == "DOWN":
-            x += 1
-        elif move == "LEFT":
-            y -= 1
-        else:
-            print("update_coord(): Unknown move.")
+        x = new_x
+        y = new_y
 
-        assert x >= 0 and y >= 0 \
-            and x < self.maze.height and y < self.maze.width, \
-            "Illegal move. (x = {} y = {} move = {})".format(x, y, move)
+        if (x >= 0 and y >= 0 and x < self.maze.height and y < self.maze.width):
+            # Afficher dans curses l'erreur
+            print("Illegal move. (x = {} y = {})".format(x, y))
 
         # Update the cell content at the new coords
         ct[x][y].content.append(robot)
@@ -90,8 +84,8 @@ class Simulator:
         move = self.move_list[self.step]
         self.step += 1
         temp = move.split(' ')
-        robot, move = temp[0], temp[1]
-        self.update_coord(robot, move)
+        robot, x, y = temp[0], int(temp[1]), int(temp[2])
+        self.update_coord(robot, x, y)
         ascii_maze = str(self.maze)
         window.clear()
         window.addstr(ascii_maze)
@@ -104,8 +98,9 @@ class Simulator:
         assert self.move_list != []
         self.step -= 1
         move = self.move_list[self.step]
-        robot, move = reverse_move(move)
-        self.update_coord(robot, move, forward=False)
+        temp = move.split(' ')
+        robot, x, y = temp[0], int(temp[1]), int(temp[2])
+        self.update_coord(robot, x, y, forward=False)
         ascii_maze = str(self.maze)
         window.clear()
         window.addstr(ascii_maze)
@@ -116,23 +111,6 @@ class Simulator:
 
     def can_move_backward(self):
         return self.step > 0
-
-
-def reverse_move(move):
-    """Return the opposite direction of move.
-    Useful for one_step_backward()
-    """
-    temp = move.split(' ')
-    rev_move = temp[1]
-    if rev_move == "UP":
-        rev_move = "DOWN"
-    elif rev_move == "RIGHT":
-        rev_move = "LEFT"
-    elif rev_move == "DOWN":
-        rev_move = "UP"
-    elif rev_move == "LEFT":
-        rev_move = "RIGHT"
-    return temp[0], rev_move
 
 
 def refresh_option_window(window, Q, D, step, total):

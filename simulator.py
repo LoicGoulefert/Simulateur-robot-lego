@@ -14,8 +14,6 @@ import server
 
 class Simulator:
 
-
-
     def __init__(self, path, robots_coord, obj, static_obj, moves):
         self.maze = Maze(path)
         self.robots_coord = robots_coord    # Current robots' coordinates
@@ -68,7 +66,8 @@ class Simulator:
         x = new_x
         y = new_y
 
-        if (x >= 0 and y >= 0 and x < self.maze.height and y < self.maze.width):
+        if (x >= 0 and y >= 0 and x < self.maze.height and
+           y < self.maze.width):
             # Afficher dans curses l'erreur
             print("Illegal move. (x = {} y = {})".format(x, y))
 
@@ -180,9 +179,12 @@ def print_with_curses(stdscr, simulator):
 
 
 def main():
-    print("Configure server parameters :")
-    IPAdr = input("IP : ")
-    port = int(input("Port : "))
+    # print("Configure server parameters :")
+    # IPAdr = input("IP : ")
+    # port = int(input("Port : "))
+    IPAdr = '127.0.0.2'
+    port = 5000
+
     print("Waiting for planner to connect...")
     objectives_coord, static_obj_coord, \
         robots_coord, move_list, config_file = server.start_server(IPAdr, port)

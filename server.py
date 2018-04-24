@@ -77,7 +77,7 @@ def handleClient(sClient, adrClient):
         robots_coord, move_list, config_file
 
 
-def start_server(IPAdr, port):
+def start_server(IPAdr='127.0.0.2', port=5000):
     """Start the server, wait for connection, receive datas for the simulator
     and return them. Close the socket before returning.
     """

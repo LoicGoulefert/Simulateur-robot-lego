@@ -59,6 +59,7 @@ class Simulator:
                     if self.collected_history[obj, robot] == (x, y) \
                       and obj not in content:
                         content.append(obj)
+                        del self.collected_history[obj, robot]
 
         # Remove the robot at the old coords
         ct[x][y].content.remove(robot)

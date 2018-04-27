@@ -24,7 +24,6 @@ The walls are described in this order : UP, RIGHT, DOWN, LEFT
 
 This simulator is meant to be used with a planner, connected with it via TCP.
 The simulator receive a list of instructions from the planner, and execute them.
-An instruction looks like "A RIGHT", or "B UP" with A, B the identifiers of the robots.
 
 
 ## Usage
@@ -35,8 +34,8 @@ In a first terminal, execute :
 This will launch the server, waiting for the planner's instructions
 
 In a second terminal :
-`./client.py`
+`./planner.py`
 
-You can find the **client.py** script [here](https://github.com/LoicGoulefert/Planificateur-robot-lego) (work on progress)
+You can find the **planner.py** script [here](https://github.com/LoicGoulefert/Planificateur-robot-lego) (work on progress)
 
 

@@ -2,12 +2,14 @@
 
 # Libs
 from socket import socket, AF_INET, SOCK_STREAM
+import pickle
 
 """The server receive the objectives coord, the robots coord, the move list and
 the configuration filename from a client.
 
-Objectives coord and robots coord must fit in a 2048 char long string, and the
-move list has no limitation in size, but will be sent in chunks of 2048bytes.
+Objectives coord and robots coord must fit in a CHUNK_SIZE char long string,
+and the move list has no limitation in size, but will be sent in chunks of
+CHUNK_SIZE bytes.
 Once the last message is received, the server disconnect and parse the data
 received in order to give it to the simulator.
 
@@ -19,6 +21,8 @@ Packets identifiers (first 2 char of each message):
 #4 -> move list
 #0 -> End of communication
 """
+
+CHUNK_SIZE = 4096  # Maximum message size the server can receive
 
 
 def string_to_dict(message):
@@ -43,6 +47,14 @@ def dispatcher(s):
     return handleClient(sClient, adrClient)
 
 
+def receive_conf_list(s):
+    sClient, adrClient = s.accept()
+    recv_data = sClient.recv(CHUNK_SIZE)
+    conf_list = pickle.loads(recv_data)
+    sClient.close()
+    return conf_list
+
+
 def handleClient(sClient, adrClient):
     """Receive messages from the client (planner), convert them to
     readable datas for the simulator.
@@ -54,7 +66,7 @@ def handleClient(sClient, adrClient):
     config_file = ""
 
     while True:
-        message = sClient.recv(2048).decode()
+        message = sClient.recv(CHUNK_SIZE).decode()
         if not message:
             break
         message_id = message[:2]
@@ -70,6 +82,10 @@ def handleClient(sClient, adrClient):
             move_list += string_to_movelist(message)
         elif message_id == '#c':
             config_file = message[2:]
+        # else:
+        #     conf_list = pickle.loads(message)
+        #     print(len(conf_list))
+        #     input()
 
         sClient.send("OK".encode())
     sClient.close()
@@ -85,6 +101,9 @@ def start_server(IPAdr='127.0.0.2', port=5000):
     host = (IPAdr, port)
     s.bind(host)
     s.listen(1)
+    conf_list = receive_conf_list(s)
+    print(conf_list)
+    input()
     objectives_coord, static_obj_coord, \
         robots_coord, move_list, config_file = dispatcher(s)
     s.close()

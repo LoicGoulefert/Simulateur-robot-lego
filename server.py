@@ -49,7 +49,11 @@ def dispatcher(s):
 
 def receive_conf_list(s):
     sClient, adrClient = s.accept()
-    recv_data = sClient.recv(CHUNK_SIZE)
+    size = int(sClient.recv(CHUNK_SIZE))
+    sClient.send("Got the size !".encode())
+
+    recv_data = sClient.recv(size)
+    sClient.send("Got the list !".encode())
     conf_list = pickle.loads(recv_data)
     sClient.close()
     return conf_list
@@ -82,10 +86,6 @@ def handleClient(sClient, adrClient):
             move_list += string_to_movelist(message)
         elif message_id == '#c':
             config_file = message[2:]
-        # else:
-        #     conf_list = pickle.loads(message)
-        #     print(len(conf_list))
-        #     input()
 
         sClient.send("OK".encode())
     sClient.close()
@@ -103,7 +103,6 @@ def start_server(IPAdr='127.0.0.2', port=5000):
     s.listen(1)
     conf_list = receive_conf_list(s)
     print(conf_list)
-    input()
     objectives_coord, static_obj_coord, \
         robots_coord, move_list, config_file = dispatcher(s)
     s.close()

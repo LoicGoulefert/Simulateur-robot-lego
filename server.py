@@ -26,7 +26,11 @@ CHUNK_SIZE = 4096  # Maximum message size the server can receive
 
 
 def string_to_dict(message):
-    """Convert a message containing coordinates to a dictionnary."""
+    """Convert a message containing coordinates to a dictionnary.
+
+    Parameters:
+        message: string representing coords.
+    """
     dic = {}
     obj_list = message[2:].split(',')
     for obj in obj_list:
@@ -36,32 +40,51 @@ def string_to_dict(message):
 
 
 def string_to_movelist(message):
-    """Convert a message containing a move list to a list"""
+    """Convert a message containing a move list to a list.
+
+    Parameters:
+        message: string representing a move list
+    """
     move_list = message[2:].split(',')
     return move_list
 
 
-def dispatcher(s):
-    """Accept a connection with the planner, return data for initialization."""
+def dispatcher(s, f):
+    """Accept a connection with the planner and execute
+    the function f.
+
+    Parameters:
+        s: socket
+        f: function to execute
+    """
     sClient, adrClient = s.accept()
-    return handleClient(sClient, adrClient)
+    return f(sClient, adrClient)
 
 
-def receive_conf_list(s):
-    sClient, adrClient = s.accept()
+def receive_conf_list(sClient, adrClient):
+    """Receive and unpickle the conf_list. Returns it.
+
+    Parameters:
+        sClient: client socket
+        adrClient: client adress
+    """
     size = int(sClient.recv(CHUNK_SIZE))
     sClient.send("Got the size !".encode())
-
     recv_data = sClient.recv(size)
     sClient.send("Got the list !".encode())
     conf_list = pickle.loads(recv_data)
     sClient.close()
+    print('Len conf list :', len(conf_list))
     return conf_list
 
 
-def handleClient(sClient, adrClient):
+def receive_infos(sClient, adrClient):
     """Receive messages from the client (planner), convert them to
     readable datas for the simulator.
+
+    Parameters:
+        sClient: client socket
+        adrClient: client adress
     """
     objectives_coord = {}
     static_obj_coord = {}
@@ -96,16 +119,21 @@ def handleClient(sClient, adrClient):
 def start_server(IPAdr='127.0.0.2', port=5000):
     """Start the server, wait for connection, receive datas for the simulator
     and return them. Close the socket before returning.
+
+    Parameters:
+        IPAdr: string representing the IP of the host
+        port: integer, the port we're listening on
     """
     s = socket(AF_INET, SOCK_STREAM)
     host = (IPAdr, port)
     s.bind(host)
     s.listen(1)
-    conf_list = receive_conf_list(s)
-    print(conf_list)
+    conf_list = dispatcher(s, receive_conf_list)
+
     objectives_coord, static_obj_coord, \
-        robots_coord, move_list, config_file = dispatcher(s)
+        robots_coord, move_list, config_file = dispatcher(s, receive_infos)
     s.close()
+
     return objectives_coord, static_obj_coord,\
         robots_coord, move_list, config_file
 

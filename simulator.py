@@ -10,18 +10,19 @@ import sys
 # Others
 from maze import Maze
 import server
+from bitvector import get_bitvector
 
 
 class Simulator:
 
-    def __init__(self, path, robots_coord, obj, static_obj, moves):
-        self.maze = Maze(path)
+    def __init__(self, path, robots_coord, obj, static_obj, moves, conf_list):
         self.robots_coord = robots_coord    # Current robots' coordinates
         self.objectives_coord = obj         # Objectives that can be collected
         self.static_obj_coord = static_obj  # Obj. that can't be collected
         self.move_list = moves              # Moves received from the planner
         self.collected_history = {}         # Coords of collected objectives
         self.step = 0
+        self.maze = Maze(path, get_bitvector(conf_list))
 
         ct = self.maze.cell_tab
         for robot in self.robots_coord.keys():
@@ -141,10 +142,10 @@ def print_with_curses(stdscr, simulator):
     ascii_maze = str(simulator.maze)
 
     # Maze window
-    begin_x = 4
-    begin_y = 4
+    begin_x = 2
+    begin_y = 2
     height = curses.LINES-10
-    width = curses.COLS-1
+    width = curses.COLS // 2
     maze_w = curses.newwin(height, width, begin_y, begin_x)
     try:
         maze_w.addstr(ascii_maze)
@@ -164,6 +165,16 @@ def print_with_curses(stdscr, simulator):
     bottom_w.addstr("Step {} / {}".format(simulator.step,
                                           len(simulator.move_list)))
     bottom_w.refresh()
+
+    # Logs window
+    begin_x = curses.COLS//2 + 2
+    begin_y = 2
+    height = curses.LINES-10
+    width = curses.COLS // 2
+    logs_w = curses.newwin(height, width, begin_y, begin_x)
+    logs_w.addstr("Next move : \n", curses.A_BOLD)
+
+    logs_w.refresh()
 
     # The different actions possible
     while True:
@@ -187,11 +198,14 @@ def main():
 
     print("Waiting for planner to connect...")
     objectives_coord, static_obj_coord, \
-        robots_coord, move_list, config_file = server.start_server(IPAdr, port)
-    simu = Simulator('./mazes/' + config_file,
-                     robots_coord, objectives_coord,
+        robots_coord, move_list, config_file, conf_list \
+        = server.start_server(IPAdr, port)
+    simu = Simulator(config_file,
+                     robots_coord,
+                     objectives_coord,
                      static_obj_coord,
-                     move_list)
+                     move_list,
+                     conf_list)
     return simu
 
 

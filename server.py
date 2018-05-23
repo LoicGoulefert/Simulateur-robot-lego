@@ -74,7 +74,8 @@ def receive_conf_list(sClient, adrClient):
     sClient.send("Got the list !".encode())
     conf_list = pickle.loads(recv_data)
     sClient.close()
-    print('Len conf list :', len(conf_list))
+    print('Len conf list :', len(conf_list[0]))
+    print(conf_list[1], conf_list[2])
     return conf_list
 
 
@@ -131,13 +132,14 @@ def start_server(IPAdr='127.0.0.2', port=5000):
     conf_list = dispatcher(s, receive_conf_list)
 
     objectives_coord, static_obj_coord, \
-        robots_coord, move_list, config_file = dispatcher(s, receive_infos)
+        robots_coord, move_list, config_file \
+        = dispatcher(s, receive_infos)
     s.close()
 
     return objectives_coord, static_obj_coord,\
-        robots_coord, move_list, config_file
+        robots_coord, move_list, config_file, conf_list
 
 
 if __name__ == '__main__':
     objectives_coord, static_obj_coord, robots_coord, \
-        move_list, config_file = start_server()
+        move_list, config_file, conf_list = start_server()

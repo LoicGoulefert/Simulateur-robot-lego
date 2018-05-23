@@ -1,5 +1,7 @@
 #! /usr/bin/python3
 
+# Libs
+
 # Others
 from cell import Cell
 
@@ -8,11 +10,15 @@ from cell import Cell
 
 class Maze:
 
-    def __init__(self, configfile_path):
+    def __init__(self, configfile_path, bitvector):
         """Init the cell_tab attribute from the config file.
         Init the width and height of the maze.
         """
         self.cell_tab = list()
+        # extraire bitvector de conf_list => à faire dans le simu
+        # Donc ici j'ai le bitvector de allowed
+        # j'en fait un tableau de string '0110'
+        # init avec cell_tab pareil
         with open(configfile_path) as configfile:
             for line in configfile:
                 cell_line = list()

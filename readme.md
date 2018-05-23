@@ -28,14 +28,14 @@ The simulator receive a list of instructions from the planner, and execute them.
 
 ## Usage
 
-In a first terminal, execute :
+In a terminal, execute :
 `./simulator.py`
 
 This will launch the server, waiting for the planner's instructions
 
-In a second terminal :
+In an other terminal :
 `./planner.py`
 
-You can find the **planner.py** script [here](https://github.com/LoicGoulefert/Planificateur-robot-lego) (work on progress)
+You can find the **planner** [here](https://github.com/LoicGoulefert/Planificateur-robot-lego).
 
 

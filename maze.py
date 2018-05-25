@@ -17,7 +17,6 @@ class Maze:
         self.cell_tab = list()
         self.at_s, self.allowed_s = split_conf_list(conf_list)
         self.width, self.height = get_dimensions(self.allowed_s)
-        print("Dimensions : w={}, h={}".format(self.width, self.height))
         for i in range(self.height):
             cell_line = list()
             for j in range(self.width):
@@ -147,5 +146,4 @@ def build_cell_string(x, y, allowed_s):
             tab[3] = 1
     for t in tab:
         res += str(t)
-    print("res :", res)
     return res

@@ -20,7 +20,7 @@ Il doit en faire 2 sets pour pouvoir chercher dedans.
 avec 5 l'indice de ce tuple dans L(F)
 ça devient : (5, rob1, 0, 0)
 
-Avec le set d'allowed je peux calculer width et height
+Avec le set d'allowed je peux calculer width et height DONE !!
 
 Le simu reçoit plus une liste de coups comme étant une string.
 Il reçoit un liste de tuples (op_name, var, state_bv)
@@ -29,19 +29,8 @@ Il va mettre à jour l'affichage du maze avec ce state_bv.
 Il va aussi construire le nom (op_name + var) du move et l'afficher
 dans curses.
 
-
-Construire le laby avec le pseudo bitvector des positions.
-C'est la qu'il y a l'histoire des masques
-
 F : a  b  c  d  e   <= tout ce qui p-être vrai
     0  1  2  3  4
-
-Etape 1 : trouver width & heigth avec c-1-2
-                                        h w
-Avec le max() gg
-
-Etape 2: reconstruire une string 0110 pour dire s'il y a des murs ou pas
-On créé les allowed ? On cherche dans le set de allowed ? Personne ne sait
 
 Etape 3: ..?
 
@@ -50,7 +39,7 @@ Etape 3: ..?
 
 class Simulator:
 
-    def __init__(self, path, robots_coord, obj, static_obj, moves, conf_list):
+    def __init__(self, robots_coord, obj, static_obj, moves, conf_list):
         self.maze = Maze(conf_list)
         self.robots_coord = robots_coord    # Current robots' coordinates
         self.objectives_coord = obj         # Objectives that can be collected
@@ -233,11 +222,10 @@ def main():
 
     print("Waiting for planner to connect...")
     objectives_coord, static_obj_coord, \
-        robots_coord, move_list, config_file, conf_list \
+        robots_coord, move_list, conf_list \
         = server.start_server(IPAdr, port)
 
-    simu = Simulator(config_file,
-                     robots_coord,
+    simu = Simulator(robots_coord,
                      objectives_coord,
                      static_obj_coord,
                      move_list,

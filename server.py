@@ -4,8 +4,7 @@
 from socket import socket, AF_INET, SOCK_STREAM
 import pickle
 
-"""The server receive the objectives coord, the robots coord, the move list and
-the configuration filename from a client.
+"""The server receive the objectives coord, the robots coord and the move lis
 
 Objectives coord and robots coord must fit in a CHUNK_SIZE char long string,
 and the move list has no limitation in size, but will be sent in chunks of
@@ -14,7 +13,6 @@ Once the last message is received, the server disconnect and parse the data
 received in order to give it to the simulator.
 
 Packets identifiers (first 2 char of each message):
-#c -> config file name (must be the same on both sides)
 #1 -> coord. objectives
 #2 -> coord. static objectives
 #3 -> coord. robots
@@ -62,8 +60,8 @@ def dispatcher(s, f):
     return f(sClient, adrClient)
 
 
-def receive_conf_list(sClient, adrClient):
-    """Receive and unpickle the conf_list. Returns it.
+def receive_object(sClient, adrClient):
+    """Receive and unpickle an object. Returns it.
 
     Parameters:
         sClient: client socket
@@ -72,10 +70,9 @@ def receive_conf_list(sClient, adrClient):
     size = int(sClient.recv(CHUNK_SIZE))
     sClient.send("Got the size !".encode())
     recv_data = sClient.recv(size)
-    sClient.send("Got the list !".encode())
+    sClient.send("Got the object !".encode())
     conf_list = pickle.loads(recv_data)
     sClient.close()
-    print('Len conf list :', len(conf_list))
     return conf_list
 
 
@@ -91,7 +88,6 @@ def receive_infos(sClient, adrClient):
     static_obj_coord = {}
     robots_coord = {}
     move_list = []
-    config_file = ""
 
     while True:
         message = sClient.recv(CHUNK_SIZE).decode()
@@ -108,13 +104,11 @@ def receive_infos(sClient, adrClient):
             robots_coord = string_to_dict(message)
         elif message_id == '#4':
             move_list += string_to_movelist(message)
-        elif message_id == '#c':
-            config_file = message[2:]
 
         sClient.send("OK".encode())
     sClient.close()
     return objectives_coord, static_obj_coord, \
-        robots_coord, move_list, config_file
+        robots_coord, move_list
 
 
 def start_server(IPAdr='127.0.0.2', port=5000):
@@ -129,17 +123,18 @@ def start_server(IPAdr='127.0.0.2', port=5000):
     host = (IPAdr, port)
     s.bind(host)
     s.listen(1)
-    conf_list = dispatcher(s, receive_conf_list)
+    conf_list = dispatcher(s, receive_object)
 
+    path = dispatcher(s, receive_object)
     objectives_coord, static_obj_coord, \
-        robots_coord, move_list, config_file \
-        = dispatcher(s, receive_infos)
+        robots_coord, move_list = dispatcher(s, receive_infos)
+
     s.close()
 
     return objectives_coord, static_obj_coord,\
-        robots_coord, move_list, config_file, conf_list
+        robots_coord, move_list, conf_list
 
 
 if __name__ == '__main__':
     objectives_coord, static_obj_coord, robots_coord, \
-        move_list, config_file, conf_list = start_server()
+        move_list, conf_list = start_server()

@@ -18,6 +18,9 @@ class Cell:
             RIGHT -> wall
             DOWN -> no wall
             LEFT -> wall
+
+        Parameters:
+            walls: string, see format above
         """
         self.UP = walls[0] == '1'
         self.RIGHT = walls[1] == '1'

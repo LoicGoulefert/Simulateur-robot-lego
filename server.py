@@ -22,6 +22,7 @@ Packets identifiers (first 2 char of each message):
 #0 -> End of communication
 """
 
+# Global variables
 CHUNK_SIZE = 4096  # Maximum message size the server can receive
 
 
@@ -74,8 +75,7 @@ def receive_conf_list(sClient, adrClient):
     sClient.send("Got the list !".encode())
     conf_list = pickle.loads(recv_data)
     sClient.close()
-    print('Len conf list :', len(conf_list[0]))
-    print(conf_list[1], conf_list[2])
+    print('Len conf list :', len(conf_list))
     return conf_list
 
 

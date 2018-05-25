@@ -18,4 +18,3 @@ In an other terminal :
 
 You can find the **planner** [here](https://github.com/LoicGoulefert/Planificateur-robot-lego).
 
-

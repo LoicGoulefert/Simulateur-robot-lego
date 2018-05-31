@@ -11,8 +11,13 @@ from cell import Cell
 class Maze:
 
     def __init__(self, conf_list):
-        """Init the cell_tab attribute from the config file.
+        """Init the cell_tab attribute from the conf_list
+        received from the planner.
         Init the width and height of the maze.
+
+        Parameters:
+            conf_list: list of tuple of 'at' and 'allowed' preconditions
+                       (ex : ['allowed', 'c-0-0', 'c-0-1'])
         """
         self.cell_tab = list()
         self.at_s, self.allowed_s = split_conf_list(conf_list)
@@ -23,18 +28,6 @@ class Maze:
                 cell = build_cell_string(i, j, self.allowed_s)
                 cell_line.append(Cell(cell))
             self.cell_tab.append(cell_line)
-
-    # @classmethod
-    # def init(cls, conf_list):
-    #     cell_tab = list()
-    #     at_s, allowed_s = split_conf_list(conf_list) # les passer en self.
-    #     w, h = get_dimensions(allowed_s) # same
-    #     for i in h:
-    #         cell_line = list()
-    #         for j in w:
-    #             cell = build_cell_string(i, j, allowed_s)
-    #             cell_line.append(Cell(cell))
-    #         cell_tab.append(cell_line)
 
     def __str__(self):
         """Return maze table in ASCII.
@@ -122,6 +115,9 @@ def get_coord_from_cell(cell):
 def get_dimensions(allowed_set):
     """Return the width and height of a maze,
     according to the allowed preconditions.
+
+    Parameters:
+        allowed_set: set of tuple of 'allowed' preconditions
     """
     h = -1
     w = -1
@@ -132,6 +128,13 @@ def get_dimensions(allowed_set):
 
 
 def build_cell_string(x, y, allowed_s):
+    """Build a string representing the cell walls
+    at coords. (x, y).
+
+    Parameters:
+        x, y: integers, coords of the cell
+        allowed_s: set of allowed preconditions
+    """
     tab = [0 for x in range(4)]
     res = ""
     subset = {e for e in allowed_s if e[1] == x and e[2] == y}

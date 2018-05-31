@@ -1,5 +1,9 @@
 #! /usr/bin/python3
 
+# Libs
+
+# Others
+
 """This module represent a cell of the maze.
 
 A cell can have up to 4 walls, it can be occupied by a robot

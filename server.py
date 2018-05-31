@@ -4,7 +4,9 @@
 from socket import socket, AF_INET, SOCK_STREAM
 import pickle
 
-"""The server receive the objectives coord, the robots coord and the move lis
+# Others
+
+"""The server receive the objectives coord, the robots coord and the move list
 
 Objectives coord and robots coord must fit in a CHUNK_SIZE char long string,
 and the move list has no limitation in size, but will be sent in chunks of
@@ -71,9 +73,9 @@ def receive_object(sClient, adrClient):
     sClient.send("Got the size !".encode())
     recv_data = sClient.recv(size)
     sClient.send("Got the object !".encode())
-    conf_list = pickle.loads(recv_data)
+    obj = pickle.loads(recv_data)
     sClient.close()
-    return conf_list
+    return obj
 
 
 def receive_infos(sClient, adrClient):
@@ -126,6 +128,7 @@ def start_server(IPAdr='127.0.0.2', port=5000):
     conf_list = dispatcher(s, receive_object)
 
     path = dispatcher(s, receive_object)
+    # print(type(path[0][2]))
     objectives_coord, static_obj_coord, \
         robots_coord, move_list = dispatcher(s, receive_infos)
 

@@ -14,14 +14,6 @@ import server
 """
 Modifs à faire:
 
-Le simu reçoit L(F) : tout les allowed et at possible
-Il doit en faire 2 sets pour pouvoir chercher dedans.
-ça sera un set de tuple du style : (at, rob1, c-0-0, 5)
-avec 5 l'indice de ce tuple dans L(F)
-ça devient : (5, rob1, 0, 0)
-
-Avec le set d'allowed je peux calculer width et height DONE !!
-
 Le simu reçoit plus une liste de coups comme étant une string.
 Il reçoit un liste de tuples (op_name, var, state_bv)
 
@@ -31,15 +23,23 @@ dans curses.
 
 F : a  b  c  d  e   <= tout ce qui p-être vrai
     0  1  2  3  4
-
-Etape 3: ..?
-
 """
 
 
 class Simulator:
 
     def __init__(self, robots_coord, obj, static_obj, moves, conf_list):
+        """Initialize a simulator.
+
+        Parameters:
+            robots_coord: dict containing the robots' coords
+            obj: dict containing the objects' coords
+            static_obj: dict, static object coords
+            moves: string, move list
+            conf_list: list of tuple of 'at' and 'allowed' preconditions
+                       received from the planner.
+                       (ex : ['allowed', 'c-0-0', 'c-0-1'])
+        """
         self.maze = Maze(conf_list)
         self.robots_coord = robots_coord    # Current robots' coordinates
         self.objectives_coord = obj         # Objectives that can be collected
@@ -65,7 +65,11 @@ class Simulator:
         """This function is called at each step (forward or backward)
         It updates the robot's position, and the cell content if they are any
         collectable objectives on it.
-        Parameter 'forward': true if we're stepping forward, false otherwise.
+
+        Parameters:
+            robot: string, name of the robot to update
+            new_x, new_y: integers, new coords of a robot
+            forward: boolean, true if we're stepping forward, false otherwise.
         """
         ct = self.maze.cell_tab
         x, y = self.robots_coord[robot]
@@ -104,6 +108,9 @@ class Simulator:
     def one_step_forward(self, window):
         """Process the next move in the move_list.
         Refresh the curses window when it's done.
+
+        Parameters:
+            window: curses window object
         """
         assert self.move_list != []
         move = self.move_list[self.step]
@@ -119,6 +126,9 @@ class Simulator:
     def one_step_backward(self, window):
         """Cancel the last move done.
         Refresh the curses window when it's done.
+
+        Parameters:
+            window: curses window object
         """
         assert self.move_list != []
         self.step -= 1
@@ -132,14 +142,21 @@ class Simulator:
         window.refresh()
 
     def can_move_forward(self):
+        """Returns true if we can move forward, false otherwise"""
         return self.step < len(self.move_list)
 
     def can_move_backward(self):
+        """Returns true if we can move backward, false otherwise"""
         return self.step > 0
 
 
 def refresh_option_window(window, simulator):
-    """Refresh the option window."""
+    """Refresh the option window.
+
+    Parameters:
+        window: curses window object
+        simulator: Simulator
+    """
     window.clear()
     if simulator.can_move_backward():
         window.addstr("Q: Reculer d'une etape\t\tX: Quitter\n",
@@ -158,7 +175,12 @@ def refresh_option_window(window, simulator):
 
 
 def print_with_curses(stdscr, simulator):
-    """Draw the simulation in a pretty terminal."""
+    """Draw the simulation in a pretty terminal.
+
+    Parameters:
+        stdscr: curses screen object
+        simulator: Simulator
+    """
     # Main curses window init
     stdscr = curses.initscr()
     curses.curs_set(0)  # Set cursor to invisible
